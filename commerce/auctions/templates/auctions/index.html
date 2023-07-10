@@ -3,5 +3,16 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    {% for item in all_auctionitems %}
+        <div class="product-container">
+            <div>
+                <img src= "{{ items.prdct_img }}" height= "300px" width = "300px" alt="product image">
+            </div>
+            <div>
+                {{ item.prdct_name }}
+                <br> 
+                {{ item.prdct_price }}
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}
