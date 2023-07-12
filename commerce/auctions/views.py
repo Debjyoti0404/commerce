@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, AuctionItems
-
+from .models import User, AuctionItems, Comments
+from .forms import CommentForm
 
 def index(request):
     all_auctionitem = AuctionItems.objects.all()
@@ -13,6 +14,30 @@ def index(request):
         "all_auctionitems" : all_auctionitem
     })
 
+# view for a specific item which was clicked on
+
+def listings(request, id):
+        requested_item = AuctionItems.objects.get(id = id)
+
+        if request.method == "POST":
+            comment = CommentForm(request.POST)
+            if comment.is_valid():
+                on_comment(request, comment.cleaned_data['comment'], requested_item)
+
+        comment_box = CommentForm()
+        all_comments = Comments.objects.filter(product = requested_item)
+        return render(request, "auctions/item.html", {
+            "item" : requested_item,
+            "comment_box" : comment_box,
+            "all_comments" : all_comments
+        })
+
+
+@login_required
+def on_comment(request, content, product):
+    author = User.objects.get(username = request.user.username)
+    comment = Comments(comment=content, author=author, product=product)
+    comment.save()
 
 def login_view(request):
     if request.method == "POST":
