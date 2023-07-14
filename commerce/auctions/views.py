@@ -6,7 +6,37 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User, AuctionItems, Comments
-from .forms import CommentForm
+from .forms import CommentForm, ProductForm
+
+
+@login_required
+def create_item(request):
+    if request.method == "POST":
+        form_content = ProductForm(request.POST)
+        if form_content.is_valid():
+            product_name = form_content.cleaned_data['prdct_name']
+            product_description = form_content.cleaned_data['prdct_desc']
+            product_price = form_content.cleaned_data['prdct_price']
+            product_image = form_content.cleaned_data['prdct_img']
+            product_owner = User.objects.get(username = request.user.username)
+
+            new_item = AuctionItems(
+                prdct_name = product_name,
+                prdct_desc = product_description,
+                prdct_price = product_price,
+                prdct_img = product_image,
+                prdct_owner = product_owner
+            )
+            new_item.save()
+
+        return HttpResponseRedirect(reverse("index"))
+    
+    else:
+        product_form = ProductForm()
+        return render(request, "auctions/create-listing.html", {
+            "product_form" : product_form
+        })
+
 
 def index(request):
     all_auctionitem = AuctionItems.objects.all()
@@ -14,8 +44,8 @@ def index(request):
         "all_auctionitems" : all_auctionitem
     })
 
-# view for a specific item which was clicked on
 
+# view for a specific item which was clicked on
 def listings(request, id):
         requested_item = AuctionItems.objects.get(id = id)
 
@@ -38,6 +68,7 @@ def on_comment(request, content, product):
     author = User.objects.get(username = request.user.username)
     comment = Comments(comment=content, author=author, product=product)
     comment.save()
+
 
 def login_view(request):
     if request.method == "POST":
