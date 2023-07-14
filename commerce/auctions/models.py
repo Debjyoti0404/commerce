@@ -18,5 +18,5 @@ class Comments(models.Model):
     product = models.ForeignKey('AuctionItems', on_delete=models.CASCADE)
 
 class WatchList(models.Model):
-    products = models.ManyToManyField(AuctionItems)
+    products = models.ManyToManyField(AuctionItems, null=True, blank=True)
     account_owner = models.ForeignKey('User', on_delete=models.CASCADE)

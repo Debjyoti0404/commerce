@@ -125,7 +125,14 @@ def register(request):
 @login_required
 def watchlist(request):
     currently_loggedin = User.objects.get(username=request.user.username)
-    watching_items_names = WatchList.objects.get(account_owner=currently_loggedin) #filtering the account to get the products
+    #this is to check whether there a object exists according to the username
+    try:
+        watching_items_names = WatchList.objects.get(account_owner=currently_loggedin) #filtering the account to get the products
+    except WatchList.DoesNotExist:
+       return render(request, "auctions/watchlist.html", {
+        "all_auctionitems" : None
+    })
+
     watching_items = watching_items_names.products.all() #getting the products
     return render(request, "auctions/watchlist.html", {
         "all_auctionitems" : watching_items
