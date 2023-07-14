@@ -16,3 +16,7 @@ class Comments(models.Model):
     comment = models.CharField(max_length=300)
     author = models.ForeignKey('User', on_delete=models.CASCADE)
     product = models.ForeignKey('AuctionItems', on_delete=models.CASCADE)
+
+class WatchList(models.Model):
+    products = models.ManyToManyField(AuctionItems)
+    account_owner = models.ForeignKey('User', on_delete=models.CASCADE)

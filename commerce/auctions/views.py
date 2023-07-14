@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, AuctionItems, Comments
+from .models import User, AuctionItems, Comments, WatchList
 from .forms import CommentForm, ProductForm
 
 
@@ -120,3 +120,13 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+    
+
+@login_required
+def watchlist(request):
+    currently_loggedin = User.objects.get(username=request.user.username)
+    watching_items_names = WatchList.objects.get(account_owner=currently_loggedin) #filtering the account to get the products
+    watching_items = watching_items_names.products.all() #getting the products
+    return render(request, "auctions/watchlist.html", {
+        "all_auctionitems" : watching_items
+    })
