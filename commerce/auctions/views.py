@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .models import User, AuctionItems, Comments, WatchList
@@ -46,8 +46,8 @@ def index(request):
 
 
 # view for a specific item which was clicked on
-def listings(request, id):
-        requested_item = AuctionItems.objects.get(id = id)
+def listings(request, product_id):
+        requested_item = AuctionItems.objects.get(id = product_id)
 
         if request.method == "POST":
             comment = CommentForm(request.POST)
@@ -56,10 +56,17 @@ def listings(request, id):
 
         comment_box = CommentForm()
         all_comments = Comments.objects.filter(product = requested_item)
+        currently_loggedin = User.objects.get(username=request.user.username)
+        watching_items = WatchList.objects.get(account_owner=currently_loggedin).products.all()
+        if requested_item in watching_items:
+            watchlist_status = "remove from watchlist"
+        else:
+            watchlist_status = "add to watchlist"
         return render(request, "auctions/item.html", {
             "item" : requested_item,
             "comment_box" : comment_box,
-            "all_comments" : all_comments
+            "all_comments" : all_comments,
+            "watchlist_btn" : watchlist_status
         })
 
 
@@ -121,6 +128,32 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
     
+
+@login_required
+def update_watchlist(request, product_id):
+    currently_loggedin = User.objects.get(username=request.user.username)
+    target_product = AuctionItems.objects.get(id=product_id)
+    
+    #this is to check whether there a object exists according to the username
+    try:
+        watching_items_names = WatchList.objects.get(account_owner=currently_loggedin) #filtering the account to get the products
+    except WatchList.DoesNotExist:
+        watchlist_obj = WatchList.objects.create(account_owner=currently_loggedin)
+        watchlist_obj.products.add(target_product)
+        watchlist_obj.save()
+        return redirect('listings', product_id)
+    
+    # checking if the requested product exists in the watchlist
+    required_item = watching_items_names.products.all()
+    if target_product in required_item:
+        watching_items_names.products.remove(target_product)
+        watching_items_names.save()
+        return redirect('listings', product_id)
+    else:
+        watching_items_names.products.add(target_product)
+        watching_items_names.save()
+        return redirect('listings', product_id)
+
 
 @login_required
 def watchlist(request):
