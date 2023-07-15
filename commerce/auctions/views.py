@@ -56,12 +56,17 @@ def listings(request, product_id):
 
         comment_box = CommentForm()
         all_comments = Comments.objects.filter(product = requested_item)
-        currently_loggedin = User.objects.get(username=request.user.username)
-        watching_items = WatchList.objects.get(account_owner=currently_loggedin).products.all()
-        if requested_item in watching_items:
-            watchlist_status = "remove from watchlist"
+        
+        #to access the watchlist user must be logged in
+        if request.user.is_authenticated:
+            currently_loggedin = User.objects.get(username=request.user.username)
+            watching_items = WatchList.objects.get(account_owner=currently_loggedin).products.all()
+            if requested_item in watching_items:
+                watchlist_status = "remove from watchlist"
+            else:
+                watchlist_status = "add to watchlist"
         else:
-            watchlist_status = "add to watchlist"
+            watchlist_status = "Null"
         return render(request, "auctions/item.html", {
             "item" : requested_item,
             "comment_box" : comment_box,
