@@ -56,15 +56,25 @@ def listings(request, product_id):
 
         comment_box = CommentForm()
         all_comments = Comments.objects.filter(product = requested_item)
-        
+
         #to access the watchlist user must be logged in
         if request.user.is_authenticated:
             currently_loggedin = User.objects.get(username=request.user.username)
-            watching_items = WatchList.objects.get(account_owner=currently_loggedin).products.all()
+
+            #incase of newly registered user, we have to generate a new watchlist section
+            try:
+                owner_watchlist = WatchList.objects.get(account_owner=currently_loggedin)
+            except WatchList.DoesNotExist:
+                watchlist_obj = WatchList.objects.create(account_owner=currently_loggedin)
+                watchlist_obj.save()
+                owner_watchlist = WatchList.objects.get(account_owner=currently_loggedin) #accessing the watchlist after creation
+
+            watching_items = owner_watchlist.products.all() #accessing the watchlist products of logged in account
             if requested_item in watching_items:
                 watchlist_status = "remove from watchlist"
             else:
                 watchlist_status = "add to watchlist"
+
         else:
             watchlist_status = "Null"
         return render(request, "auctions/item.html", {
