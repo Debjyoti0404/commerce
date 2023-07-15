@@ -49,6 +49,7 @@ def index(request):
 def listings(request, product_id):
         requested_item = AuctionItems.objects.get(id = product_id)
 
+        #submitting the comment
         if request.method == "POST":
             comment = CommentForm(request.POST)
             if comment.is_valid():
@@ -58,6 +59,7 @@ def listings(request, product_id):
         all_comments = Comments.objects.filter(product = requested_item)
 
         #to access the watchlist user must be logged in
+        #this whole if section code is only for watchlist section implementation
         if request.user.is_authenticated:
             currently_loggedin = User.objects.get(username=request.user.username)
 
