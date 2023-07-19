@@ -1,5 +1,8 @@
 from django import forms
 
+class BiddingForm(forms.Form):
+    bid_amout = forms.FloatField(label="Bid here")
+
 class CommentForm(forms.Form):
     comment = forms.CharField(label="Comment", max_length=300)
 
@@ -8,3 +11,4 @@ class ProductForm(forms.Form):
     prdct_desc = forms.CharField(label="Description", max_length=200)
     prdct_price = forms.FloatField(label="Initial Price")
     prdct_img = forms.URLField(label="Product Picture")
+    prdct_category = forms.CharField(label="Category", max_length=64)

@@ -5,9 +5,24 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User, AuctionItems, Comments, WatchList
-from .forms import CommentForm, ProductForm
+from .models import User, AuctionItems, Comments, WatchList, Category
+from .forms import CommentForm, ProductForm, BiddingForm
 
+
+@login_required
+def category(request):
+    all_categories = Category.objects.all()
+    return render(request, "auctions/categories.html", {
+        "all_categories" : all_categories
+    })
+
+@login_required
+def category_name(request, name):
+    requested_category = Category.objects.get(category_name=name)
+    requested_items = requested_category.products.all()
+    return render(request, "auctions/index.html", {
+        "all_auctionitems" : requested_items
+    })
 
 @login_required
 def create_item(request):
@@ -19,13 +34,21 @@ def create_item(request):
             product_price = form_content.cleaned_data['prdct_price']
             product_image = form_content.cleaned_data['prdct_img']
             product_owner = User.objects.get(username = request.user.username)
+            product_category = form_content.cleaned_data['prdct_category'].lower()
+
+            try:
+                category_obj = Category.objects.get(category_name=product_category)
+            except Category.DoesNotExist:
+                category_obj = Category.objects.create(category_name=product_category)
+                category_obj.save()
 
             new_item = AuctionItems(
                 prdct_name = product_name,
                 prdct_desc = product_description,
                 prdct_price = product_price,
                 prdct_img = product_image,
-                prdct_owner = product_owner
+                prdct_owner = product_owner,
+                product_category = product_category
             )
             new_item.save()
 
@@ -57,6 +80,8 @@ def listings(request, product_id):
 
         comment_box = CommentForm()
         all_comments = Comments.objects.filter(product = requested_item)
+
+        bid_form = BiddingForm()
 
         #to access the watchlist user must be logged in
         #this whole if section code is only for watchlist section implementation
