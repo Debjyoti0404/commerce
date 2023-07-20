@@ -1,7 +1,7 @@
 from django import forms
 
 class BiddingForm(forms.Form):
-    bid_amout = forms.FloatField(label="Bid here")
+    bid_amount = forms.FloatField(label="Bid here")
 
 class CommentForm(forms.Form):
     comment = forms.CharField(label="Comment", max_length=300)

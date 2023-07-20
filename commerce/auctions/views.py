@@ -5,10 +5,28 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User, AuctionItems, Comments, WatchList, Category
+from .models import User, AuctionItems, Comments, WatchList, Category, Bids
 from .forms import CommentForm, ProductForm, BiddingForm
 
 
+@login_required
+def bid_post(request, amount, product):
+    if amount > product.prdct_price:
+        bidder = User.objects.get(username=request.user.username)
+        latest_bid = Bids(
+            bid_amount=amount,
+            bidded_item=product,
+            bidder=bidder
+            )
+        latest_bid.save()
+        current_item = product
+        current_item.prdct_price = amount
+        current_item.save()
+        return True
+    else:
+        return False
+    
+    
 @login_required
 def category(request):
     all_categories = Category.objects.all()
@@ -48,7 +66,7 @@ def create_item(request):
                 prdct_price = product_price,
                 prdct_img = product_image,
                 prdct_owner = product_owner,
-                product_category = product_category
+                prdct_category = category_obj
             )
             new_item.save()
 
@@ -71,17 +89,25 @@ def index(request):
 # view for a specific item which was clicked on
 def listings(request, product_id):
         requested_item = AuctionItems.objects.get(id = product_id)
+        submittedbid_status = True
 
         #submitting the comment
         if request.method == "POST":
-            comment = CommentForm(request.POST)
-            if comment.is_valid():
-                on_comment(request, comment.cleaned_data['comment'], requested_item)
+            if 'comment-form' in request.POST:
+                comment = CommentForm(request.POST)
+                if comment.is_valid():
+                    on_comment(request, comment.cleaned_data['comment'], requested_item)
+            if 'bid-form' in request.POST:
+                bid = BiddingForm(request.POST)
+                if bid.is_valid():
+                    submittedbid_status = bid_post(request, bid.cleaned_data['bid_amount'], requested_item)
 
         comment_box = CommentForm()
         all_comments = Comments.objects.filter(product = requested_item)
 
         bid_form = BiddingForm()
+        all_bids = Bids.objects.filter(bidded_item = requested_item)
+
 
         #to access the watchlist user must be logged in
         #this whole if section code is only for watchlist section implementation
@@ -108,7 +134,10 @@ def listings(request, product_id):
             "item" : requested_item,
             "comment_box" : comment_box,
             "all_comments" : all_comments,
-            "watchlist_btn" : watchlist_status
+            "watchlist_btn" : watchlist_status,
+            "bid_form" : bid_form,
+            "all_bids" : all_bids,
+            "acceptance_status" : submittedbid_status
         })
 
 

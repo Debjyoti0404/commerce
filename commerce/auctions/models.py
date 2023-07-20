@@ -16,6 +16,7 @@ class AuctionItems(models.Model):
     prdct_owner = models.ForeignKey('User', on_delete=models.CASCADE, default='1')
     prdct_category = models.ForeignKey('Category', null=True, blank=True, on_delete=models.SET_NULL, related_name='products')
     creation_time = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
 
 class Bids(models.Model):
     bid_amount = models.FloatField()

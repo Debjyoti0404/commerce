@@ -11,13 +11,24 @@
     <img src="{{ item.prdct_img }}" alt="product image" style="width: 100%; height: 400px;">
     <p>{{ item.prdct_desc }}</p>
     <h2>{{ item.prdct_price }}</h2>
+    {% if user.is_authenticated %}
+        <form action="{% url 'listings' item.id %}" method="post">
+            {% csrf_token %}
+            {{ bid_form }}
+            <input type="submit" name="bid-form" value="submit bid">
+        </form>
+        <p>last bidder name: {{ all_bids.last.bidder }}</p>
+        {% if acceptance_status == False %}
+            <p>please bid more than the current price</p>
+        {% endif %}
+    {% endif %}
     <h2>Details:</h2>
     <p><strong>Listed by</strong>: {{ item.prdct_owner.username }}</p>
 
     <form action="{% url 'listings' item.id %}" method="post">
         {% csrf_token %}
         {{ comment_box }}
-        <input type="submit" value="Submit">
+        <input type="submit" name="comment-form" value="Submit">
     </form>
     <h3>Comments</h3>
     {% for comment in all_comments %}
