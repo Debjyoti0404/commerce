@@ -11,7 +11,7 @@
     <img src="{{ item.prdct_img }}" alt="product image" style="width: 100%; height: 400px;">
     <p>{{ item.prdct_desc }}</p>
     <h2>{{ item.prdct_price }}</h2>
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and user != item.prdct_owner and item.is_active %}
         <form action="{% url 'listings' item.id %}" method="post">
             {% csrf_token %}
             {{ bid_form }}
@@ -21,15 +21,26 @@
         {% if acceptance_status == False %}
             <p>please bid more than the current price</p>
         {% endif %}
+    {% elif item.is_active == False %}
+        {% if all_bids.last == None %}
+            <p>nobody bidded</p>
+        {% else %}
+            <p>{{ all_bids.last.bidder }} is the winner</p>
+        {% endif %}
+    {% elif user.is_authenticated and user == item.prdct_owner %}
+        <a href="{% url 'closebid' item.id %}">
+            <button>Close Bidding</button>
+        </a>
     {% endif %}
     <h2>Details:</h2>
     <p><strong>Listed by</strong>: {{ item.prdct_owner.username }}</p>
-
-    <form action="{% url 'listings' item.id %}" method="post">
-        {% csrf_token %}
-        {{ comment_box }}
-        <input type="submit" name="comment-form" value="Submit">
-    </form>
+    {% if user.is_authenticated %}
+        <form action="{% url 'listings' item.id %}" method="post">
+            {% csrf_token %}
+            {{ comment_box }}
+            <input type="submit" name="comment-form" value="Submit">
+        </form>
+    {% endif %}
     <h3>Comments</h3>
     {% for comment in all_comments %}
         <p><strong>{{ comment.author.username }}</strong> : {{ comment.comment }}</p>

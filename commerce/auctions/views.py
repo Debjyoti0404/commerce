@@ -43,6 +43,13 @@ def category_name(request, name):
     })
 
 @login_required
+def closebid(request, product_id):
+    requested_item = AuctionItems.objects.get(id=product_id)
+    requested_item.is_active = False
+    requested_item.save()
+    return redirect('listings', product_id)
+
+@login_required
 def create_item(request):
     if request.method == "POST":
         form_content = ProductForm(request.POST)
@@ -97,7 +104,7 @@ def listings(request, product_id):
                 comment = CommentForm(request.POST)
                 if comment.is_valid():
                     on_comment(request, comment.cleaned_data['comment'], requested_item)
-            if 'bid-form' in request.POST:
+            elif 'bid-form' in request.POST:
                 bid = BiddingForm(request.POST)
                 if bid.is_valid():
                     submittedbid_status = bid_post(request, bid.cleaned_data['bid_amount'], requested_item)
