@@ -1,3 +1,10 @@
 body {
     padding: 10px;
 }
+
+.product-container {
+    display: flex;
+    gap: 20px;
+    flex-direction: row;
+    align-items: center;
+}

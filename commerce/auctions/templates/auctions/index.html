@@ -4,15 +4,20 @@
     <h2>Active Listings</h2>
 
     {% for item in all_auctionitems %}
-        <a href="{% url 'listings' item.id %}">
-            <div class="product-container" style="border: 1px solid black; margin: 10px;">
+        <a class="nav-link" href="{% url 'listings' item.id %}">
+            <div class="product-container container-fluid card">
                 <div>
-                    <img src= "{{ item.prdct_img }}" height= "300px" width = "300px" alt="product image">
+                    <img class="bd-placeholder-img card-img-left" height="150vh" src="{{ item.prdct_img }}" alt="product image">
                 </div>
                 <div>
-                    <strong>{{ item.prdct_name }}</strong>
-                    <br> 
-                    price: {{ item.prdct_price }}
+                    <h6>
+                        <strong>{{ item.prdct_name }}</strong>
+                    </h6>
+                    <h5>
+                        Price: ₹&nbsp;{{ item.prdct_price }}
+                    </h5>
+                    <h5>{{item.prdct_desc}}</h5>
+                    <p><small>Created: {{item.creation_time}}</small>
                 </div>
             </div>
         </a>
