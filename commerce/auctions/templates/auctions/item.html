@@ -18,6 +18,7 @@
             <input type="submit" name="bid-form" value="submit bid">
         </form>
         <p>last bidder name: {{ all_bids.last.bidder }}</p>
+        <p>total bids so far: {{ all_bids.count }}</p>
         {% if acceptance_status == False %}
             <p>please bid more than the current price</p>
         {% endif %}
