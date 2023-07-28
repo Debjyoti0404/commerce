@@ -7,16 +7,16 @@
         <a class="nav-link" href="{% url 'listings' item.id %}">
             <div class="product-container container-fluid card">
                 <div>
-                    <img class="bd-placeholder-img card-img-left" height="150vh" src="{{ item.prdct_img }}" alt="product image">
+                    <img class="bd-placeholder-img card-img-left" height="250vh" src="{{ item.prdct_img }}" alt="product image">
                 </div>
                 <div>
-                    <h6>
+                    <h4>
                         <strong>{{ item.prdct_name }}</strong>
-                    </h6>
+                    </h4>
                     <h5>
                         Price: ₹&nbsp;{{ item.prdct_price }}
                     </h5>
-                    <h5>{{item.prdct_desc}}</h5>
+                    <h6>{{item.prdct_desc}}</h6>
                     <p><small>Created: {{item.creation_time}}</small>
                 </div>
             </div>

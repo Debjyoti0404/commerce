@@ -10,7 +10,7 @@ class Category(models.Model):
 
 class AuctionItems(models.Model):
     prdct_name = models.CharField(max_length=64)
-    prdct_desc = models.CharField(max_length=200)
+    prdct_desc = models.CharField(max_length=500)
     prdct_price = models.FloatField()
     prdct_img = models.URLField(max_length=90)
     prdct_owner = models.ForeignKey('User', on_delete=models.CASCADE, default='1')
