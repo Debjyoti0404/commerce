@@ -38,7 +38,13 @@
     <h2>Details:</h2>
     <ul>
         <li><strong>Listed by</strong>: {{ item.prdct_owner.username }}</li>
-        <li><strong>Category</strong>: {{ item.prdct_category.category_name }}</li>
+        <li><strong>Category</strong>: 
+            {% if item.prdct_category.category_name == None %}
+                No Category
+            {% else %}
+              {{ item.prdct_category.category_name }}  
+            {% endif %}
+        </li>
     </ul>
     {% if user.is_authenticated %}
         <form action="{% url 'listings' item.id %}" method="post">
