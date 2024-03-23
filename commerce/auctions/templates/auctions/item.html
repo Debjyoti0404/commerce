@@ -1,61 +1,63 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <div class="d-flex">
-        <h2>Listing:{{ item.prdct_name }}</h2>
-        <div class="mx-2">
-            {% if user.is_authenticated %}
-            <a href="{% url 'updatewatchlist' item.id %}">
-                <button class="btn btn-primary">{{ watchlist_btn }}</button>
+    <div class="p-3">
+        <div class="d-flex">
+            <h2>Listing:{{ item.prdct_name }}</h2>
+            <div class="mx-2">
+                {% if user.is_authenticated %}
+                <a href="{% url 'updatewatchlist' item.id %}">
+                    <button class="btn btn-primary">{{ watchlist_btn }}</button>
+                </a>
+            {% endif %}
+            </div>
+        </div>
+        <img class="bd-placeholder-img card-img-left" src="{{ item.prdct_img }}" alt="product image" height="500vh">
+        <p>{{ item.prdct_desc }}</p>
+        <h2>₹&nbsp;{{ item.prdct_price }}</h2>
+        {% if user.is_authenticated and user != item.prdct_owner and item.is_active %}
+            <form action="{% url 'listings' item.id %}" class="d-flex" method="post">
+                {% csrf_token %}
+                {{ bid_form }}
+                <input type="submit" class="btn btn-primary mx-2 py-0" name="bid-form" value="submit bid">
+            </form>
+            <p>last bidder name: {{ all_bids.last.bidder }}</p>
+            <p>total bids so far: {{ all_bids.count }}</p>
+            {% if acceptance_status == False %}
+                <p>please bid more than the current price</p>
+            {% endif %}
+        {% elif item.is_active == False %}
+            {% if all_bids.last == None %}
+                <p>nobody bidded</p>
+            {% else %}
+                <p>{{ all_bids.last.bidder }} is the winner</p>
+            {% endif %}
+        {% elif user.is_authenticated and user == item.prdct_owner %}
+            <a href="{% url 'closebid' item.id %}">
+                <button class="btn btn-danger">Close Bidding</button>
             </a>
         {% endif %}
-        </div>
+        <h2>Details:</h2>
+        <ul>
+            <li><strong>Listed by</strong>: {{ item.prdct_owner.username }}</li>
+            <li><strong>Category</strong>: 
+                {% if item.prdct_category.category_name == None %}
+                    No Category
+                {% else %}
+                {{ item.prdct_category.category_name }}  
+                {% endif %}
+            </li>
+        </ul>
+        {% if user.is_authenticated %}
+            <form action="{% url 'listings' item.id %}" class="d-flex" rows="1" method="post">
+                {% csrf_token %}
+                {{ comment_box }}
+                <input type="submit" name="comment-form" class="btn btn-primary mx-2 py-0" value="post comment">
+            </form>
+        {% endif %}
+        <h3>Comments</h3>
+        {% for comment in all_comments %}
+            <p><strong>{{ comment.author.username }}</strong> : {{ comment.comment }}</p>
+        {%endfor %}
     </div>
-    <img class="bd-placeholder-img card-img-left" src="{{ item.prdct_img }}" alt="product image" height="500vh">
-    <p>{{ item.prdct_desc }}</p>
-    <h2>₹&nbsp;{{ item.prdct_price }}</h2>
-    {% if user.is_authenticated and user != item.prdct_owner and item.is_active %}
-        <form action="{% url 'listings' item.id %}" class="d-flex" method="post">
-            {% csrf_token %}
-            {{ bid_form }}
-            <input type="submit" class="mx-2 btn-primary" name="bid-form" value="submit bid">
-        </form>
-        <p>last bidder name: {{ all_bids.last.bidder }}</p>
-        <p>total bids so far: {{ all_bids.count }}</p>
-        {% if acceptance_status == False %}
-            <p>please bid more than the current price</p>
-        {% endif %}
-    {% elif item.is_active == False %}
-        {% if all_bids.last == None %}
-            <p>nobody bidded</p>
-        {% else %}
-            <p>{{ all_bids.last.bidder }} is the winner</p>
-        {% endif %}
-    {% elif user.is_authenticated and user == item.prdct_owner %}
-        <a href="{% url 'closebid' item.id %}">
-            <button>Close Bidding</button>
-        </a>
-    {% endif %}
-    <h2>Details:</h2>
-    <ul>
-        <li><strong>Listed by</strong>: {{ item.prdct_owner.username }}</li>
-        <li><strong>Category</strong>: 
-            {% if item.prdct_category.category_name == None %}
-                No Category
-            {% else %}
-              {{ item.prdct_category.category_name }}  
-            {% endif %}
-        </li>
-    </ul>
-    {% if user.is_authenticated %}
-        <form action="{% url 'listings' item.id %}" class="d-flex" method="post">
-            {% csrf_token %}
-            {{ comment_box }}
-            <input type="submit" name="comment-form" class="mx-2" value="post comment">
-        </form>
-    {% endif %}
-    <h3>Comments</h3>
-    {% for comment in all_comments %}
-        <p><strong>{{ comment.author.username }}</strong> : {{ comment.comment }}</p>
-    {%endfor %}
 {% endblock %}

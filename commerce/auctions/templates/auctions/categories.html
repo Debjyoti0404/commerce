@@ -1,8 +1,10 @@
 {% extends "auctions/layout.html" %}
 {% block body %}
-    {% for category in all_categories %}
-    <a href="{% url 'category_name' category.category_name%}">
-        <div>{{ category.category_name }}</div>
-    </a>
-    {% endfor %}
+    <div class="d-flex">
+        {% for category in all_categories %}
+            <a href="{% url 'category_name' category.category_name%}">
+                <button class="btn btn-primary m-2">{{ category.category_name }}</button>
+            </a>
+        {% endfor %}
+    </div>
 {% endblock %}
