@@ -5,7 +5,7 @@
 
     {% for item in all_auctionitems %}
         <a class="nav-link" href="{% url 'listings' item.id %}">
-            <div class="product-container container-fluid card">
+            <div class="product-container container-fluid card my-3 border border-info">
                 <div>
                     <img class="bd-placeholder-img card-img-left" height="250vh" src="{{ item.prdct_img }}" alt="product image">
                 </div>
